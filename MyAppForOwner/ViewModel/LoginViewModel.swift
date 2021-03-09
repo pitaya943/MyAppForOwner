@@ -127,7 +127,7 @@ class LoginViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         
         uid = Auth.auth().currentUser?.uid ?? ""
         phone = Auth.auth().currentUser?.phoneNumber ?? ""
-        let userRef = db.collection("TestOfOwner").document(uid)
+        let userRef = db.collection("Owner").document(uid)
                 
         loading.toggle()
         // If user exist, read Data else write new one
@@ -175,7 +175,7 @@ class LoginViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
         
         uid = Auth.auth().currentUser?.uid ?? ""
         phone = Auth.auth().currentUser?.phoneNumber ?? ""
-        let userRef = db.collection("TestOfOwner").document(uid)
+        let userRef = db.collection("Owner").document(uid)
         
         loading.toggle()
         
@@ -186,6 +186,8 @@ class LoginViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
                     
                     try userRef.setData(from: Owner(id: self.uid, name: self.name, location: self.location, email: self.email, phoneNumber: self.phone, pic: urls, about: self.about, type: self.type), merge: true)
                     
+                    UserDefaults.standard.set(self.name, forKey: "user")
+
                     print("User data updated!!!")
                                         
                     withAnimation {
@@ -193,6 +195,8 @@ class LoginViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
                         self.status.toggle()
                         self.loading.toggle()
                     }
+                    
+                    
                     
                 } catch {
                     print("Error \(error)")

@@ -17,6 +17,8 @@ struct Msg : Identifiable, Hashable {
     var user : String
 }
 
+var array = UserDefaults.standard.object(forKey:"pic") as? [String] ?? [String]()
+
 struct ChatView : View {
     
     var name : String
@@ -27,9 +29,7 @@ struct ChatView : View {
     @State var txt = ""
     @State var nomsgs = false
     @State var scrolled = false
-    
-    let myPic = UserDefaults.standard.value(forKey: "pic")
-    
+        
     var body : some View {
         
         VStack(spacing: 0) {
@@ -59,6 +59,8 @@ struct ChatView : View {
                                     
                                     if i.user == UserDefaults.standard.value(forKey: "uid") as! String {
                                         
+                                        let myPic = array[0]
+                                        
                                         Spacer()
                                         
                                         Text(i.msg)
@@ -67,7 +69,7 @@ struct ChatView : View {
                                             .clipShape(ChatBubble(mymsg: true))
                                             .foregroundColor(.white)
                                         
-                                        AnimatedImage(url: URL(string: myPic as! String))
+                                        AnimatedImage(url: URL(string: myPic))
                                             .resizable()
                                             .renderingMode(.original)
                                             .frame(width: 55, height: 55)
@@ -214,13 +216,13 @@ struct ChatBubble : Shape {
     }
 }
 
-func sendMsg(user: String,uid: String,pic: String,date: Date,msg: String) {
+func sendMsg(user: String, uid: String, pic: String, date: Date, msg: String) {
     
     let db = Firestore.firestore()
     
     let myuid = Auth.auth().currentUser?.uid
     
-    db.collection("Owner").document(uid).collection("recents").document(myuid!).getDocument { (snap, err) in
+    db.collection("User").document(uid).collection("recents").document(myuid!).getDocument { (snap, err) in
         
         if err != nil {
             
@@ -253,11 +255,11 @@ func setRecents(user: String,uid: String,pic: String,msg: String,date: Date) {
     
     let myuid = Auth.auth().currentUser?.uid
     
-    let myname = UserDefaults.standard.value(forKey: "user") as! String
+    let myname = UserDefaults.standard.object(forKey: "user") as! String
     
-    let mypic = UserDefaults.standard.value(forKey: "pic") as! String
+    let mypic = array[0]
     
-    db.collection("Owner").document(uid).collection("recents").document(myuid!).setData(["name": myname, "pic": mypic, "lastmsg": msg, "date": date]) { (err) in
+    db.collection("User").document(uid).collection("recents").document(myuid!).setData(["name": myname, "pic": mypic, "lastmsg": msg, "date": date]) { (err) in
         
         if err != nil {
             
@@ -266,7 +268,7 @@ func setRecents(user: String,uid: String,pic: String,msg: String,date: Date) {
         }
     }
     
-    db.collection("User").document(myuid!).collection("recents").document(uid).setData(["name": user, "pic": pic, "lastmsg": msg, "date": date]) { (err) in
+    db.collection("Owner").document(myuid!).collection("recents").document(uid).setData(["name": user, "pic": pic, "lastmsg": msg, "date": date]) { (err) in
         
         if err != nil {
             
@@ -282,13 +284,13 @@ func updateRecents(user: String,uid: String,pic: String,msg: String,date: Date) 
     
     let myuid = Auth.auth().currentUser?.uid
     
-    let myname = UserDefaults.standard.value(forKey: "user") as! String
+    let myname = UserDefaults.standard.object(forKey: "user") as! String
     
-    let mypic = UserDefaults.standard.value(forKey: "pic") as! String
+    let mypic = array[0]
     
-    db.collection("Owner").document(uid).collection("recents").document(myuid!).updateData(["name": myname, "pic": mypic, "lastmsg": msg, "date": date])
+    db.collection("User").document(uid).collection("recents").document(myuid!).updateData(["name": myname, "pic": mypic, "lastmsg": msg, "date": date])
     
-    db.collection("User").document(myuid!).collection("recents").document(uid).updateData(["name": user, "pic": pic, "lastmsg": msg, "date": date])
+    db.collection("Owner").document(myuid!).collection("recents").document(uid).updateData(["name": user, "pic": pic, "lastmsg": msg, "date": date])
 }
 
 func updateDB(uid: String,msg: String,date: Date) {
