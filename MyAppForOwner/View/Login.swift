@@ -9,65 +9,79 @@ import SwiftUI
 
 struct Login: View {
     
-    @EnvironmentObject var loginViewModel: LoginViewModel
-    
+    @StateObject var accountCreation = LoginViewModel()
+
     var body: some View {
         
-        VStack {
-            
-            Text("登入")
-                .font(.largeTitle)
-                .foregroundColor(.black)
-                .fontWeight(.heavy)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.top, 25)
-            
-            HStack(spacing: 15) {
+        ZStack {
+                        
+            VStack {
+                Color.black
+                Color("loginBackground")
+            }
+            VStack {
                 
-                Text("+\(loginViewModel.getCountryCode())")
-                    .padding(.vertical, 12)
-                    .padding(.horizontal)
-                    .frame(width: 80)
+                LottieView(filename: "login")
+                    
+                VStack {
+                    VStack {
+                        Text("手機驗證")
+                            .fontWeight(.heavy)
+                            .font(.title)
+                            .foregroundColor(.white)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                    HStack {
+                        VStack(alignment: .leading, spacing: 15) {
+                            Text("請輸入您的手機號碼")
+                                .font(.caption)
+                                .foregroundColor(Color.gray)
+                            
+                            Text("+ \(accountCreation.getCountryCode()) \(accountCreation.phNumber)")
+                                .foregroundColor(Color.black)
+                                .font(.title2)
+                                .fontWeight(.bold)
+                        }
+                        
+                        Spacer(minLength: 0)
+                        
+                        NavigationLink(destination: Verification(accountCreation: accountCreation), isActive: $accountCreation.goToVerify) {
+                            Text("")
+                                .hidden()
+                        }
+                        
+                        Button(action: accountCreation.sendCode, label: {
+                            Text("取得驗證碼")
+                            .foregroundColor(.white)
+                            .padding(.vertical, 12)
+                            .padding(.horizontal)
+                            .background(accountCreation.phNumber == "" ? Color.blue.opacity(0.5): Color.blue)
+                            .cornerRadius(15)
+                        })
+                        .disabled(accountCreation.phNumber == "" ? true: false)
+                    }
+                    .padding()
+                    .frame(width: UIScreen.main.bounds.width)
                     .background(Color.white)
-                    .shadow(color: Color.black.opacity(0.05), radius: 5, x: 5, y: 5)
-                    .shadow(color: Color.black.opacity(0.05), radius: 5, x: -5, y: -5)
+                    .cornerRadius(20)
+                    
+                }
+                .frame(width: UIScreen.main.bounds.width * 8 / 9)
                 
-                TextField("手機號碼", text: $loginViewModel.phNumber)
-                    .padding(.vertical, 12)
-                    .padding(.horizontal)
-                    .background(Color.white)
-                    .shadow(color: Color.black.opacity(0.05), radius: 5, x: 5, y: 5)
-                    .shadow(color: Color.black.opacity(0.05), radius: 5, x: -5, y: -5)
-
-                
+                CustomNumberPad(value: $accountCreation.phNumber, isVerify: false)
+                    .frame(height: UIScreen.main.bounds.height / 2.5)
                 
             }
-            .padding(.top)
-            
-            Button(action: loginViewModel.login, label: {
-                
-                HStack {
-                    
-                    Spacer()
-                    Text("登入")
-                    Spacer()
-                    
-                    Image(systemName: "arrow.right")
-                }
-                .foregroundColor(.white)
-                .padding(.vertical, 12)
-                .padding(.horizontal)
-                .background(Color.blue)
-                .cornerRadius(8)
-                
+            .padding(.vertical, 25)
+            .alert(isPresented: $accountCreation.error, content: {
+                Alert(title: Text("訊息"), message: Text(accountCreation.errorMsg), dismissButton: .default(Text("確定")))
             })
-            .padding(.top)
-            .opacity((loginViewModel.phNumber != "" ? 1 : 0.6))
-            .disabled((loginViewModel.phNumber != "" ? false : true))
             
-            Spacer(minLength: 0)
+            if accountCreation.loading { LoadingScreen() }
+
         }
-        .padding(.horizontal)
+        .ignoresSafeArea(.all, edges: .all)
     }
 }
 

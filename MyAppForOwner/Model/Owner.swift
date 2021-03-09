@@ -7,15 +7,27 @@
 
 import Foundation
 
-struct Owner {
+struct Owner: Codable, Identifiable {
     
     var id: String
     var name: String
-    var address: String
+    var location: String
     var email: String
     var phoneNumber: String
-    var pic: String
+    var pic: [String]
     var about: String
     var type: String
+    
+    
+//    init(id: String, name: String, location: String, email: String, phoneNumber: String, pic: [String], about: String, type: String) {
+//        self.id = ""
+//        self.name = ""
+//        self.location = ""
+//        self.email = ""
+//        self.phoneNumber = ""
+//        self.pic = [String]()
+//        self.about = ""
+//        self.type = ""
+//    }
     
 }

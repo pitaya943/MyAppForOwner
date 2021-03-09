@@ -9,42 +9,22 @@ import SwiftUI
 
 struct MotherView: View {
     
-    //@EnvironmentObject var viewRouter: ViewRouter
-    @StateObject var loginViewModel = LoginViewModel()
-    @AppStorage("log_Status") var status = false
+    @EnvironmentObject var viewRouter: ViewRouter
 
     var body: some View {
         
-        
-        NavigationView {
-            
-            if status {
-                
-                Text("home")
-            }
-            else {
-                ZStack {
-                    
-                    ContentView()
-                        .environmentObject(loginViewModel)
-                    
-                    if loginViewModel.isLoading { LoadingScreen() }
-                }
-            }
+        switch viewRouter.currentPage {
+
+        case .page1:
+            CoverView()
+
+        case .page2:
+            ContentView()
+
+        case .page3:
+            Home()
+                .environmentObject(viewRouter)
         }
-        
-//        switch viewRouter.currentPage {
-//
-//        case .page1:
-//            ContentView()
-//
-//        case .page2:
-//            ContentView()
-//                .environmentObject(loginViewModel)
-//
-//        case .page3:
-//            Login()
-//        }
     }
 }
 
